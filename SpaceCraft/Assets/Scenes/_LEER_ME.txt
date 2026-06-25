@@ -1,0 +1,17 @@
+OPCIÓN A — AUTOMÁTICA (recomendada)
+  Menú de Unity: Tools > SpaceCraft > Construir escenas (Auto)
+  Genera aquí las 5 escenas, las cablea y las añade a Build Settings en orden.
+
+OPCIÓN B — MANUAL
+  Crea aquí las 5 escenas (File > New Scene > Save As...) con estos nombres EXACTOS:
+
+    1. SeleccionNivel   (UI con 3 botones)
+    2. LlegadaNave      (cinemática de aterrizaje)
+    3. Nivel1           (Cavernas Mineras - recolección)
+    4. Nivel2           (Ciudad en el Desierto - combate)
+    5. Nivel3           (Plataformeo con jetpack)
+
+  Luego añádelas a File > Build Settings... > Scenes In Build EN ESTE MISMO ORDEN
+  (SeleccionNivel debe quedar en el índice 0).
+
+Consulta README.md (raíz del proyecto) para el detalle de cada escena.

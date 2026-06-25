@@ -1,0 +1,23 @@
+# Carpetas generadas por Unity (no versionar)
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+
+# Archivos de IDE / Rider / VS
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+
+# Sistema
+.DS_Store
+
+# Crashes
+sysinfo.txt
+*.stackdump
