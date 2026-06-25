@@ -80,6 +80,9 @@ public static class SpaceCraftSceneBuilder
         MakeCamera2D(new Color(0.05f, 0.06f, 0.12f));
         new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
 
+        // Background
+        MakeBackground("Background", "Backgrounds/img_28.png");
+
         var canvasGo = MakeCanvas("Canvas");
         MakeUIText(canvasGo.transform, "Title", new Vector2(0.5f, 1f), new Vector2(0f, -120f),
                    new Vector2(900f, 120f), "SPACECRAFT", 72, TextAnchor.MiddleCenter);
@@ -91,6 +94,8 @@ public static class SpaceCraftSceneBuilder
             Button btn = MakeUIButton(canvasGo.transform, "Btn_Nivel" + i, new Vector2(0f, y), "NIVEL " + i);
             UnityEventTools.AddIntPersistentListener(btn.onClick, new UnityAction<int>(uiCtrl.OnLevelButton), i);
         }
+
+        AddMusic("Assets/Audio/Music/historia.mp3");
 
         return SaveScene(scene, "SeleccionNivel");
     }
@@ -104,12 +109,23 @@ public static class SpaceCraftSceneBuilder
         MakeCamera2D(new Color(0.10f, 0.08f, 0.14f));
 
         MakeGround("Suelo", new Vector3(0f, -4f, 0f), new Vector2(30f, 1.5f), new Color(0.25f, 0.22f, 0.20f));
-        MakeSpriteGO("Nave", new Color(0.80f, 0.82f, 0.88f), null, new Vector3(0f, 2f, 0f), new Vector3(3f, 2f, 1f));
+        
+        Sprite shipSprite = LoadSprite("Sprites/img_31.png");
+        GameObject ship = MakeSpriteGO("Nave", Color.white, null, new Vector3(0f, 2f, 0f), new Vector3(3f, 2f, 1f), shipSprite);
+        
+        // Add arrival sound effect on the ship
+        var audioSource = ship.AddComponent<AudioSource>();
+        audioSource.clip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SFX/aterrizaje.mp3");
+        audioSource.playOnAwake = true;
+        audioSource.volume = 0.5f;
+
         new GameObject("ArrivalController").AddComponent<ShipArrivalController>();
 
         var canvasGo = MakeCanvas("Canvas");
         MakeUIText(canvasGo.transform, "Status", new Vector2(0.5f, 0f), new Vector2(0f, 120f),
                    new Vector2(900f, 100f), "Aterrizando...", 48, TextAnchor.MiddleCenter);
+
+        AddMusic("Assets/Audio/Music/exploración.mp3");
 
         return SaveScene(scene, "LlegadaNave");
     }
@@ -127,25 +143,25 @@ public static class SpaceCraftSceneBuilder
 
         BuildHudHint("Espacio: salto/doble salto  ·  Shift: dash  ·  Ctrl: planeo  ·  Recolecta TODOS los minerales");
 
+        // Background
+        MakeBackground("Background", "Backgrounds/img_20.png");
+
         Color rock  = new Color(0.28f, 0.24f, 0.22f);
         Color ledge = new Color(0.34f, 0.30f, 0.26f);
         Color deco  = new Color(0.15f, 0.12f, 0.11f);
 
-        // Suelos laterales DESPEJADOS (sin plataformas bajas encima) + precipicio central.
-        MakeGround("Suelo_Izq", new Vector3(-7f, -4f, 0f), new Vector2(6f, 1f), rock); // x -10..-4
-        MakeGround("Suelo_Der", new Vector3(7f, -4f, 0f), new Vector2(6f, 1f), rock);  // x 4..10
+        // Suelos
+        MakeGround("Suelo_Izq", new Vector3(-7f, -4f, 0f), new Vector2(6f, 1f), rock);
+        MakeGround("Suelo_Der", new Vector3(7f, -4f, 0f), new Vector2(6f, 1f), rock);
 
-        // Pirámide suave SOBRE el precipicio: cada escalón sube solo 1.1 (el salto llega a ~2.0)
-        // y los escalones se solapan en X. El premio queda a altura cómoda y desplazado.
         var plats = new GameObject("Plataformas").transform;
         MakeGround("Escalon_1",   new Vector3(-3.0f, -2.65f, 0f), new Vector2(2.0f, 0.5f), ledge, plats);
         MakeGround("Escalon_2",   new Vector3(-1.2f, -1.55f, 0f), new Vector2(2.0f, 0.5f), ledge, plats);
-        MakeGround("Escalon_3",   new Vector3(0.5f, -0.45f, 0f),  new Vector2(2.0f, 0.5f), ledge, plats); // cima
+        MakeGround("Escalon_3",   new Vector3(0.5f, -0.45f, 0f),  new Vector2(2.0f, 0.5f), ledge, plats);
         MakeGround("Escalon_4",   new Vector3(2.3f, -1.55f, 0f),  new Vector2(2.0f, 0.5f), ledge, plats);
-        MakeGround("Escalon_5",   new Vector3(3.5f, -2.65f, 0f),  new Vector2(2.0f, 0.5f), ledge, plats); // puente al suelo der
-        MakeGround("Repisa_Alta", new Vector3(-1.5f, 0.65f, 0f),  new Vector2(1.8f, 0.5f), ledge, plats); // premio (cómodo desde la cima)
+        MakeGround("Escalon_5",   new Vector3(3.5f, -2.65f, 0f),  new Vector2(2.0f, 0.5f), ledge, plats);
+        MakeGround("Repisa_Alta", new Vector3(-1.5f, 0.65f, 0f),  new Vector2(1.8f, 0.5f), ledge, plats);
 
-        // Decoración de cueva (sin colisión, fuera del camino).
         var decos = new GameObject("Decoracion").transform;
         MakeDecoration("Estalactita_1", decos, new Vector3(-6f, 5.4f, 0f), new Vector3(0.8f, 2.2f, 1f), deco);
         MakeDecoration("Estalactita_2", decos, new Vector3(-2f, 5.7f, 0f), new Vector3(0.9f, 1.6f, 1f), deco);
@@ -153,24 +169,24 @@ public static class SpaceCraftSceneBuilder
         MakeDecoration("Estalagmita_1", decos, new Vector3(-9.4f, -3.0f, 0f), new Vector3(0.7f, 1.2f, 1f), deco);
         MakeDecoration("Estalagmita_2", decos, new Vector3(9.4f, -3.0f, 0f),  new Vector3(0.7f, 1.2f, 1f), deco);
 
-        // Minerales (9): 2 suelo izq + 4 escalera + 1 premio alto + 2 suelo der. Todos alcanzables.
+        // Minerales
         var minerals = new GameObject("Minerales").transform;
         Vector3[] mp =
         {
-            new Vector3(-8.5f, -3.0f, 0f),  // suelo izq
-            new Vector3(-5.5f, -3.0f, 0f),  // suelo izq
-            new Vector3(-3.0f, -1.85f, 0f), // sobre Escalon_1
-            new Vector3(-1.2f, -0.75f, 0f), // sobre Escalon_2
-            new Vector3(0.5f,  0.35f, 0f),  // sobre Escalon_3 (cima)
-            new Vector3(-1.5f, 1.45f, 0f),  // sobre Repisa_Alta (premio)
-            new Vector3(2.3f, -0.75f, 0f),  // sobre Escalon_4
-            new Vector3(5.5f, -3.0f, 0f),   // suelo der
-            new Vector3(8.5f, -3.0f, 0f),   // suelo der
+            new Vector3(-8.5f, -3.0f, 0f),
+            new Vector3(-5.5f, -3.0f, 0f),
+            new Vector3(-3.0f, -1.85f, 0f),
+            new Vector3(-1.2f, -0.75f, 0f),
+            new Vector3(0.5f,  0.35f, 0f),
+            new Vector3(-1.5f, 1.45f, 0f),
+            new Vector3(2.3f, -0.75f, 0f),
+            new Vector3(5.5f, -3.0f, 0f),
+            new Vector3(8.5f, -3.0f, 0f),
         };
         for (int i = 0; i < mp.Length; i++)
             MakeMineral("Mineral_" + (i + 1).ToString("00"), minerals, mp[i]);
 
-        // Jugador con JETPACK (doble salto, dash, planeo) + inventario para recolectar.
+        // Jugador
         GameObject player = BuildJetpackPlayer(new Vector3(-8f, -2.6f, 0f), new Color(0.20f, 0.55f, 0.90f));
         player.AddComponent<Inventory>();
         var health = player.AddComponent<Health>();
@@ -178,6 +194,8 @@ public static class SpaceCraftSceneBuilder
         player.AddComponent<PlayerDeath>();
 
         new GameObject("Objetivo").AddComponent<CollectionGoal>();
+
+        AddMusic("Assets/Audio/Music/exploración.mp3");
 
         return SaveScene(scene, "Nivel1");
     }
@@ -194,25 +212,28 @@ public static class SpaceCraftSceneBuilder
         BuildPauseMenu();
         BuildHudHint("Clic o J: disparar   ·   Derrota a El Vigia");
 
+        // Background
+        MakeBackground("Background", "Backgrounds/img_24.png");
+
         Color sand     = new Color(0.62f, 0.50f, 0.32f);
         Color building = new Color(0.40f, 0.33f, 0.26f);
 
-        // Suelo con precipicio: izquierda (jugador) | hueco | derecha (enemigo).
-        MakeGround("Suelo_Izq", new Vector3(-5f, -4f, 0f), new Vector2(10f, 1f), sand); // x -10..0
-        MakeGround("Suelo_Der", new Vector3(6f, -4f, 0f), new Vector2(8f, 1f), sand);   // x 2..10
+        MakeGround("Suelo_Izq", new Vector3(-5f, -4f, 0f), new Vector2(10f, 1f), sand);
+        MakeGround("Suelo_Der", new Vector3(6f, -4f, 0f), new Vector2(8f, 1f), sand);
 
-        // Edificios de fondo (decoración).
         var decos = new GameObject("Ciudad").transform;
         MakeDecoration("Edificio_1", decos, new Vector3(-7f, -0.5f, 0f), new Vector3(2.2f, 6f, 1f), building);
         MakeDecoration("Edificio_2", decos, new Vector3(-2.5f, 0.5f, 0f), new Vector3(1.6f, 8f, 1f), building);
         MakeDecoration("Edificio_3", decos, new Vector3(8.5f, -0.2f, 0f), new Vector3(2.4f, 7f, 1f), building);
 
-        // Jugador con pistola.
+        // Jugador
         GameObject player = BuildBasicPlayer(new Vector3(-8f, -2.5f, 0f), new Color(0.20f, 0.55f, 0.90f));
 
-        GameObject gun = MakeSpriteGO("Pistola", new Color(0.12f, 0.12f, 0.14f), player.transform,
+        // Pistola
+        Sprite gunSprite = LoadSprite("Sprites/img_25.png");
+        GameObject gun = MakeSpriteGO("Pistola", Color.white, player.transform,
                                       player.transform.position + new Vector3(0.55f, -0.1f, 0f),
-                                      new Vector3(0.7f, 0.25f, 1f));
+                                      new Vector3(0.7f, 0.25f, 1f), gunSprite);
         gun.GetComponent<SpriteRenderer>().sortingOrder = 2;
 
         var firePoint = new GameObject("FirePoint").transform;
@@ -223,10 +244,15 @@ public static class SpaceCraftSceneBuilder
         var combat = player.AddComponent<PlayerCombat>();
         SetRef(combat, "firePoint", firePoint);
         SetRef(combat, "projectilePrefab", projPrefab);
+        
+        // Asignar sonido de disparo (laser.mp3)
+        AudioClip laserClip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SFX/laser.mp3");
+        SetRef(combat, "shootSfx", laserClip);
 
-        // "El Vigía" en la plataforma derecha.
-        GameObject enemy = MakeSpriteGO("ElVigia", new Color(0.85f, 0.22f, 0.22f), null,
-                                        new Vector3(6f, -2.8f, 0f), new Vector3(1.2f, 1.6f, 1f));
+        // "El Vigía"
+        Sprite enemySprite = LoadSprite("Sprites/img_39.png");
+        GameObject enemy = MakeSpriteGO("ElVigia", Color.white, null,
+                                        new Vector3(6f, -2.8f, 0f), new Vector3(1.2f, 1.6f, 1f), enemySprite);
         enemy.GetComponent<SpriteRenderer>().sortingOrder = 1;
         var erb = enemy.AddComponent<Rigidbody2D>();
         erb.bodyType = RigidbodyType2D.Kinematic;
@@ -238,6 +264,8 @@ public static class SpaceCraftSceneBuilder
 
         var goal = new GameObject("Objetivo").AddComponent<CombatGoal>();
         SetRef(goal, "targetEnemy", ehealth);
+
+        AddMusic("Assets/Audio/Music/conflicto.mp3");
 
         return SaveScene(scene, "Nivel2");
     }
@@ -254,6 +282,9 @@ public static class SpaceCraftSceneBuilder
         BuildPauseMenu();
         BuildHudHint("Espacio: salto/doble salto  ·  Shift: dash  ·  Ctrl: planeo  ·  Llega a la meta");
 
+        // Background
+        MakeBackground("Background", "Backgrounds/img_28.png");
+
         Color plat    = new Color(0.30f, 0.32f, 0.38f);
         Color goalCol = new Color(0.20f, 0.55f, 0.30f);
 
@@ -263,8 +294,9 @@ public static class SpaceCraftSceneBuilder
         MakeGround("Plataforma_2", new Vector3(2f, 0.5f, 0f), new Vector2(2f, 0.6f), plat, plats);
         MakeGround("Plataforma_Meta", new Vector3(7f, 2.5f, 0f), new Vector2(3f, 0.6f), goalCol, plats);
 
-        GameObject goal = MakeSpriteGO("Meta", new Color(0.30f, 0.95f, 0.45f), null,
-                                       new Vector3(7f, 3.7f, 0f), new Vector3(1.2f, 2f, 1f));
+        Sprite goalSprite = LoadSprite("Sprites/img_55.png");
+        GameObject goal = MakeSpriteGO("Meta", Color.white, null,
+                                       new Vector3(7f, 3.7f, 0f), new Vector3(1.2f, 2f, 1f), goalSprite);
         goal.GetComponent<SpriteRenderer>().sortingOrder = 2;
         var gcol = goal.AddComponent<BoxCollider2D>();
         gcol.isTrigger = true;
@@ -272,6 +304,8 @@ public static class SpaceCraftSceneBuilder
         goal.AddComponent<LevelGoal>();
 
         BuildJetpackPlayer(new Vector3(-8f, -1f, 0f), new Color(0.20f, 0.55f, 0.90f));
+
+        AddMusic("Assets/Audio/Music/challenge.mp3");
 
         return SaveScene(scene, "Nivel3");
     }
@@ -292,6 +326,8 @@ public static class SpaceCraftSceneBuilder
         var win = new GameObject("WinScreen").AddComponent<WinScreen>();
         Button btn = MakeUIButton(canvasGo.transform, "Btn_Continuar", new Vector2(0f, -80f), "CONTINUAR");
         UnityEventTools.AddVoidPersistentListener(btn.onClick, new UnityAction(win.GoToMenu));
+
+        AddMusic("Assets/Audio/Music/nivel-feliz.mp3");
 
         return SaveScene(scene, "Ganaste");
     }
@@ -320,7 +356,6 @@ public static class SpaceCraftSceneBuilder
 
     private static void BuildPauseMenu()
     {
-        // EventSystem para que respondan los botones del panel.
         new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
 
         var canvasGo = MakeCanvas("PauseCanvas");
@@ -343,7 +378,7 @@ public static class SpaceCraftSceneBuilder
         UnityEventTools.AddVoidPersistentListener(btnMenu.onClick, new UnityAction(pause.ReturnToMenu));
 
         SetRef(pause, "pausePanel", panel);
-        panel.SetActive(false); // se serializa oculto; ESC lo muestra
+        panel.SetActive(false);
     }
 
     // ===================================================================
@@ -358,7 +393,7 @@ public static class SpaceCraftSceneBuilder
         ConfigurePlayerBody(player);
         var col = player.AddComponent<CapsuleCollider2D>();
         col.size = Vector2.one;
-        col.sharedMaterial = FrictionlessMaterial(); // evita quedarse pegado a las paredes
+        col.sharedMaterial = FrictionlessMaterial();
 
         Transform groundCheck = MakeGroundCheck(player);
 
@@ -382,7 +417,7 @@ public static class SpaceCraftSceneBuilder
         ConfigurePlayerBody(player);
         var col = player.AddComponent<CapsuleCollider2D>();
         col.size = Vector2.one;
-        col.sharedMaterial = FrictionlessMaterial(); // evita quedarse pegado a las paredes
+        col.sharedMaterial = FrictionlessMaterial();
 
         Transform groundCheck = MakeGroundCheck(player);
 
@@ -451,15 +486,72 @@ public static class SpaceCraftSceneBuilder
         camGo.AddComponent<AudioListener>();
     }
 
-    private static GameObject MakeSpriteGO(string name, Color color, Transform parent, Vector3 pos, Vector3 scale)
+    private static Sprite LoadSprite(string relativePath)
+    {
+        string path = "Assets/_ImportedAssets/" + relativePath;
+        var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+        if (importer != null && importer.textureType != TextureImporterType.Sprite)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.filterMode = FilterMode.Point;
+            importer.spritePixelsPerUnit = 100f;
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    private static void MakeBackground(string name, string relativePath)
+    {
+        Sprite bgSprite = LoadSprite(relativePath);
+        if (bgSprite != null)
+        {
+            var bgGo = new GameObject(name);
+            var sr = bgGo.AddComponent<SpriteRenderer>();
+            sr.sprite = bgSprite;
+            sr.sortingOrder = -10;
+            bgGo.transform.position = new Vector3(0f, 0f, 0f);
+            
+            float targetHeight = 12f;
+            float targetWidth = 21.33f;
+            
+            float spriteHeight = bgSprite.rect.height / bgSprite.pixelsPerUnit;
+            float spriteWidth = bgSprite.rect.width / bgSprite.pixelsPerUnit;
+            
+            if (spriteHeight > 0 && spriteWidth > 0)
+            {
+                float scaleY = targetHeight / spriteHeight;
+                float scaleX = targetWidth / spriteWidth;
+                bgGo.transform.localScale = new Vector3(scaleX, scaleY, 1f);
+            }
+        }
+    }
+
+    private static void AddMusic(string trackPath)
+    {
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(trackPath);
+        if (clip != null)
+        {
+            var camGo = GameObject.FindWithTag("MainCamera");
+            if (camGo != null)
+            {
+                var aud = camGo.AddComponent<AudioSource>();
+                aud.clip = clip;
+                aud.loop = true;
+                aud.playOnAwake = true;
+                aud.volume = 0.35f;
+            }
+        }
+    }
+
+    private static GameObject MakeSpriteGO(string name, Color color, Transform parent, Vector3 pos, Vector3 scale, Sprite customSprite = null)
     {
         var go = new GameObject(name);
         if (parent != null) go.transform.SetParent(parent);
         go.transform.position = pos;
         go.transform.localScale = scale;
         var sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = SquareSprite();
-        sr.color = color;
+        sr.sprite = customSprite != null ? customSprite : SquareSprite();
+        sr.color = customSprite != null ? Color.white : color;
         return go;
     }
 
@@ -468,13 +560,12 @@ public static class SpaceCraftSceneBuilder
         GameObject go = MakeSpriteGO(name, color, parent, pos, new Vector3(size.x, size.y, 1f));
         go.layer = LayerMask.NameToLayer("Ground");
         var col = go.AddComponent<BoxCollider2D>();
-        col.size = Vector2.one; // el sprite mide 1x1 unidad; la escala da el tamaño real
+        col.size = Vector2.one;
         return go;
     }
 
     private static GameObject MakeWall(string name, Vector3 pos, Vector2 size, Color color)
     {
-        // Capa Default: bloquea al jugador pero NO cuenta como suelo (evita wall-jump).
         GameObject go = MakeSpriteGO(name, color, null, pos, new Vector3(size.x, size.y, 1f));
         var col = go.AddComponent<BoxCollider2D>();
         col.size = Vector2.one;
@@ -484,17 +575,22 @@ public static class SpaceCraftSceneBuilder
     private static void MakeDecoration(string name, Transform parent, Vector3 pos, Vector3 scale, Color color)
     {
         GameObject d = MakeSpriteGO(name, color, parent, pos, scale);
-        d.GetComponent<SpriteRenderer>().sortingOrder = -2; // detrás de todo
+        d.GetComponent<SpriteRenderer>().sortingOrder = -2;
     }
 
     private static void MakeMineral(string name, Transform parent, Vector3 pos)
     {
-        GameObject m = MakeSpriteGO(name, new Color(0.25f, 0.90f, 0.90f), parent, pos, Vector3.one * 0.55f);
+        Sprite mineralSprite = LoadSprite("Sprites/img_51.png");
+        AudioClip collectClip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SFX/sonido ui 2.mp3");
+        
+        GameObject m = MakeSpriteGO(name, Color.white, parent, pos, Vector3.one * 0.5f, mineralSprite);
         m.GetComponent<SpriteRenderer>().sortingOrder = 2;
         var col = m.AddComponent<CircleCollider2D>();
         col.isTrigger = true;
         col.radius = 0.6f;
-        m.AddComponent<MineralCollectible>();
+        
+        var mc = m.AddComponent<MineralCollectible>();
+        SetRef(mc, "collectSfx", collectClip);
     }
 
     private static void BuildHudHint(string text)
@@ -592,15 +688,13 @@ public static class SpaceCraftSceneBuilder
     private static Font UIFont()
     {
         if (_uiFont != null) return _uiFont;
-        _uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
-                  ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+        _uiFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Minercraftory.ttf");
+        if (_uiFont == null)
+            _uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
+                      ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
         return _uiFont;
     }
 
-    /// <summary>
-    /// Material físico SIN fricción para el collider del jugador. Evita que Rise se
-    /// "pegue" a las paredes/plataformas: con fricción 0, resbala en vez de quedarse colgada.
-    /// </summary>
     private static PhysicsMaterial2D FrictionlessMaterial()
     {
         if (_frictionless != null) return _frictionless;

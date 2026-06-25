@@ -20,6 +20,9 @@ namespace SpaceCraft
         [Tooltip("Balas por segundo (manteniendo pulsado).")]
         [SerializeField] private float fireRate = 3f;
 
+        [Header("Audio")]
+        [SerializeField] private AudioClip shootSfx;
+
         [Header("Controles")]
         [SerializeField] private bool fireWithMouse = true;
         [SerializeField] private KeyCode fireKey = KeyCode.J;
@@ -50,6 +53,9 @@ namespace SpaceCraft
             float dir = Mathf.Sign(transform.localScale.x);
             Projectile projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
             projectile.Launch(new Vector2(dir, 0f));
+
+            if (shootSfx != null)
+                AudioSource.PlayClipAtPoint(shootSfx, firePoint.position);
         }
     }
 }
